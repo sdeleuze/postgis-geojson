@@ -17,6 +17,7 @@ import org.postgis.Polygon;
 /**
  *
  * @author mayconbordin
+ * @author Sebastien Deleuze
  */
 public class GeometryDeserializerTest {
     protected ObjectMapper mapper;
@@ -26,6 +27,14 @@ public class GeometryDeserializerTest {
         mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("MyModule");
         module.addDeserializer(Geometry.class, new GeometryDeserializer());
+        module.addDeserializer(Geometry.class, new GeometryDeserializer());
+        module.addDeserializer(Point.class, new GeometryDeserializer());
+        module.addDeserializer(Polygon.class, new GeometryDeserializer());
+        module.addDeserializer(LineString.class, new GeometryDeserializer());
+        module.addDeserializer(MultiPolygon.class, new GeometryDeserializer());
+        module.addDeserializer(MultiPoint.class, new GeometryDeserializer());
+        module.addDeserializer(MultiLineString.class, new GeometryDeserializer());
+        module.addDeserializer(GeometryCollection.class, new GeometryDeserializer());
         mapper.registerModule(module);
     }
     
@@ -35,7 +44,7 @@ public class GeometryDeserializerTest {
         
         String json = "{\"type\": \"Point\",\"coordinates\": [125.6, 10.1]}";
         
-        Point p = (Point) mapper.readValue(json, Geometry.class);
+        Point p = mapper.readValue(json, Point.class);
         
         assertNotNull(p);
         assertEquals(125.6, p.getX(), 0);
@@ -49,7 +58,7 @@ public class GeometryDeserializerTest {
         
         String json = "{\"type\": \"LineString\",\"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]}";
         
-        LineString p = (LineString) mapper.readValue(json, Geometry.class);
+        LineString p = mapper.readValue(json, LineString.class);
         
         assertNotNull(p);
         assertEquals(2, p.numPoints());
@@ -66,7 +75,7 @@ public class GeometryDeserializerTest {
         String json = "{\"type\": \"Polygon\",\"coordinates\": "
                 + "[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]]}";
         
-        Polygon p = (Polygon) mapper.readValue(json, Geometry.class);
+        Polygon p = mapper.readValue(json, Polygon.class);
         
         assertNotNull(p);
         assertEquals(1, p.numRings());
@@ -95,7 +104,7 @@ public class GeometryDeserializerTest {
         String json = "{\"type\": \"MultiLineString\",\"coordinates\": "
                 + "[[[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]]}";
         
-        MultiLineString p = (MultiLineString) mapper.readValue(json, Geometry.class);
+        MultiLineString p = mapper.readValue(json, MultiLineString.class);
         
         assertNotNull(p);
         assertEquals(1, p.numLines());
@@ -123,7 +132,7 @@ public class GeometryDeserializerTest {
         
         String json = "{\"type\": \"MultiPoint\",\"coordinates\": [ [100.0, 0.0], [101.0, 1.0] ]}";
         
-        MultiPoint p = (MultiPoint) mapper.readValue(json, Geometry.class);
+        MultiPoint p = mapper.readValue(json, MultiPoint.class);
         
         assertNotNull(p);
         assertEquals(2, p.numPoints());
@@ -143,7 +152,7 @@ public class GeometryDeserializerTest {
                 + "[[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]]"
                 + "]}";
         
-        MultiPolygon p = (MultiPolygon) mapper.readValue(json, Geometry.class);
+        MultiPolygon p = mapper.readValue(json, MultiPolygon.class);
         
         assertNotNull(p);
         assertEquals(2, p.numPolygons());
@@ -176,7 +185,7 @@ public class GeometryDeserializerTest {
                 + "{ \"type\": \"LineString\", \"coordinates\": [ [101.0, 0.0], [102.0, 1.0] ] }"
                 + "]}";
         
-        GeometryCollection p = (GeometryCollection) mapper.readValue(json, Geometry.class);
+        GeometryCollection p = mapper.readValue(json, GeometryCollection.class);
         
         assertNotNull(p);
         assertEquals(2, p.numGeoms());

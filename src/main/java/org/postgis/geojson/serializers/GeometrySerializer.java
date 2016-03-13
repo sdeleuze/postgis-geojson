@@ -121,7 +121,12 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
     protected void serializePoint(Point point, JsonGenerator json) throws IOException {
         writeTypeField(POINT, json);
         writeStartCoordinates(json);
-        writeNumbers(json, point.getX(), point.getY(), point.getZ());
+        if (point.dimension > 2) {
+            writeNumbers(json, point.getX(), point.getY(), point.getZ());
+        } else {
+            writeNumbers(json, point.getX(), point.getY());
+        }
+
         writeEndCoordinates(json);
     }
 
@@ -146,7 +151,11 @@ public class GeometrySerializer extends JsonSerializer<Geometry> {
     protected void writePoints(JsonGenerator json, Point[] points) throws IOException {
         for (Point point : points) {
             json.writeStartArray();
-            writeNumbers(json, point.getX(), point.getY(), point.getZ());
+            if (point.dimension > 2) {
+                writeNumbers(json, point.getX(), point.getY(), point.getZ());
+            } else {
+                writeNumbers(json, point.getX(), point.getY());
+            }
             json.writeEndArray();
         }
     }

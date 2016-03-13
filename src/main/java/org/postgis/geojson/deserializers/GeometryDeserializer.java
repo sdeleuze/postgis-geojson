@@ -26,11 +26,12 @@ import static org.postgis.geojson.GeometryTypes.*;
  * Deserializer for Geometry types.
  * 
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
+ * @author Sebastien Deleuze
  */
-public class GeometryDeserializer extends JsonDeserializer<Geometry> {
+public class GeometryDeserializer<T extends Geometry> extends JsonDeserializer<T> {
     
     @Override
-    public Geometry deserialize(JsonParser jp, DeserializationContext dc) 
+    public T deserialize(JsonParser jp, DeserializationContext dc)
             throws IOException, JsonProcessingException {
         String fieldName;
         String type = null;
@@ -51,26 +52,26 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
                 JsonNode node = jp.readValueAsTree();
                 JsonNode geometries = node.get("geometries");
                 
-                return new GeometryCollection(readNodeAsGeometryArray(geometries, jp));
+                return (T)new GeometryCollection(readNodeAsGeometryArray(geometries, jp));
             }
         }
     }
     
-    protected Geometry coordinatesToGeometry(String type, JsonNode coordinates, JsonParser jp)
+    protected T coordinatesToGeometry(String type, JsonNode coordinates, JsonParser jp)
             throws JsonParseException {
         switch (type) {
             case POINT:
-                return readNodeAsPoint(coordinates);
+                return (T)readNodeAsPoint(coordinates);
             case LINE_STRING:
-                return readNodeAsLineString(coordinates);
+                return (T)readNodeAsLineString(coordinates);
             case POLYGON:
-                return new Polygon(readNodeAsLinearRingArray(coordinates));
+                return (T)new Polygon(readNodeAsLinearRingArray(coordinates));
             case MULTI_POINT:
-                return new MultiPoint(readNodeAsPointArray(coordinates));
+                return (T)new MultiPoint(readNodeAsPointArray(coordinates));
             case MULTI_LINE_STRING:
-                return new MultiLineString(readNodeAsLineStringArray(coordinates));
+                return (T)new MultiLineString(readNodeAsLineStringArray(coordinates));
             case MULTI_POLYGON:
-                return new MultiPolygon(readNodeAsPolygonArray(coordinates));
+                return (T)new MultiPolygon(readNodeAsPolygonArray(coordinates));
             default:
                 throw new JsonParseException("\""+type+"\" is not a valid Geometry type.",
                         jp.getCurrentLocation());
@@ -203,6 +204,6 @@ public class GeometryDeserializer extends JsonDeserializer<Geometry> {
             values.add(it.next().asDouble());
         }
         
-        return new Point(values.get(0), values.get(1), values.size() > 2 ? values.get(2) : 0.0);
+        return values.size() > 2 ? new Point(values.get(0), values.get(1), values.get(2)) : new Point(values.get(0), values.get(1));
     }
 }
